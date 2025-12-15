@@ -16,7 +16,11 @@ const LoginPage = () => {
         try {
             const userCredential = await loginUser(data.email, data.password);
             setUser(userCredential.user);
-            navigate('/');
+            if (data.email === 'admin@gmail.com') {
+                navigate('/admin');
+            } else {
+                navigate('/profile');
+            }
         } catch (error) {
             console.error(error);
             alert('Login Failed: ' + error.message);

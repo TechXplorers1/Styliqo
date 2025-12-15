@@ -1,23 +1,106 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
+import { addProduct, getProduct, updateProduct, uploadImage } from '../lib/firebase';
 
 const AddProductPage = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
     const navigate = useNavigate();
+    const { id } = useParams(); // Get ID if in edit mode
+    const [loading, setLoading] = useState(false);
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState('');
 
-    const onSubmit = (data) => {
-        // Here we would upload image to Firebase Storage and save doc to Firestore
-        console.log(data);
-        alert('Product Added Successfully! (Simulation)');
-        navigate('/admin');
+    const isEditMode = !!id;
+
+    useEffect(() => {
+        if (isEditMode) {
+            setLoading(true);
+            getProduct(id).then(product => {
+                if (product) {
+                    setValue('title', product.title);
+                    setValue('price', product.price);
+                    setValue('originalPrice', product.originalPrice);
+                    setValue('stockQuantity', product.stockQuantity);
+                    setValue('category', product.category);
+                    setValue('discount', product.discount);
+                    setValue('description', product.description);
+                    setValue('productUrl', product.productUrl);
+                    if (product.image) {
+                        setImagePreview(product.image);
+                    }
+                }
+                setLoading(false);
+            }).catch(err => {
+                console.error("Error fetching product:", err);
+                setLoading(false);
+            });
+        }
+    }, [id, isEditMode, setValue]);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
     };
+
+    const onSubmit = async (data) => {
+        setLoading(true);
+        try {
+            let imageUrl = imagePreview;
+
+            if (imageFile) {
+                // Upload new image if selected
+                imageUrl = await uploadImage(imageFile);
+            } else if (data.productUrl) {
+                // If no file but URL is provided, use URL as image
+                imageUrl = data.productUrl;
+            } else if (!isEditMode && !imageUrl) {
+                // Require image or URL for new products if not provided
+                alert("Please select an image or provide a Product URL");
+                setLoading(false);
+                return;
+            }
+
+            const productData = {
+                title: data.title,
+                price: Number(data.price),
+                originalPrice: Number(data.originalPrice),
+                stockQuantity: Number(data.stockQuantity),
+                category: data.category,
+                discount: Number(data.discount),
+                description: data.description,
+                productUrl: data.productUrl,
+                image: imageUrl
+            };
+
+            if (isEditMode) {
+                await updateProduct(id, productData);
+                alert('Product Updated Successfully!');
+            } else {
+                await addProduct(productData);
+                alert('Product Added Successfully!');
+            }
+            navigate('/admin');
+        } catch (error) {
+            console.error("Error saving product:", error);
+            alert("Failed to save product: " + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading && isEditMode && !imagePreview) {
+        return <div className="p-8 text-center">Loading product details...</div>;
+    }
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-2xl bg-white rounded shadow my-8">
-            <h1 className="text-2xl font-bold mb-6">Add New Product</h1>
+            <h1 className="text-2xl font-bold mb-6">{isEditMode ? 'Edit Product' : 'Add New Product'}</h1>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <Input
@@ -45,10 +128,11 @@ const AddProductPage = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                     <Input
-                        label="Category"
-                        placeholder="Sarees"
-                        {...register('category', { required: 'Category is required' })}
-                        error={errors.category?.message}
+                        label="Stock Quantity"
+                        type="number"
+                        placeholder="100"
+                        {...register('stockQuantity', { required: 'Stock Quantity is required' })}
+                        error={errors.stockQuantity?.message}
                     />
                     <Input
                         label="Discount %"
@@ -57,6 +141,13 @@ const AddProductPage = () => {
                         {...register('discount')}
                     />
                 </div>
+
+                <Input
+                    label="Category"
+                    placeholder="Sarees"
+                    {...register('category', { required: 'Category is required' })}
+                    error={errors.category?.message}
+                />
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -67,19 +158,32 @@ const AddProductPage = () => {
                     ></textarea>
                 </div>
 
+                <Input
+                    label="Product / Image URL"
+                    placeholder="https://example.com/image.jpg"
+                    {...register('productUrl')}
+                />
+
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Product Image Link (Mock)</label>
-                    <Input
-                        placeholder="https://..."
-                        {...register('image', { required: 'Image URL is required' })}
-                        error={errors.image?.message}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="w-full border border-gray-300 p-2 rounded"
                     />
-                    <p className="text-xs text-gray-500 mt-1">In real app, this would be a file upload input.</p>
+                    {imagePreview && (
+                        <div className="mt-2">
+                            <img src={imagePreview} alt="Preview" className="h-32 object-contain border rounded" />
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex justify-end gap-3 mt-6">
                     <Button type="button" variant="ghost" onClick={() => navigate('/admin')}>Cancel</Button>
-                    <Button type="submit" variant="primary">Add Product</Button>
+                    <Button type="submit" variant="primary" disabled={loading}>
+                        {loading ? 'Saving...' : (isEditMode ? 'Update Product' : 'Add Product')}
+                    </Button>
                 </div>
             </form>
         </div>

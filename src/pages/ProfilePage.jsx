@@ -56,46 +56,46 @@ const ProfilePage = () => {
                     <h2 className="text-xl font-bold text-gray-800 mb-4 px-1">My Dashboard</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Orders Section */}
-                        <Link to="/orders" className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:border-pink-100 transition-colors cursor-pointer group">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="bg-blue-50 p-2 rounded-full text-blue-600">
+                        <Link to="/orders" className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:border-pink-100 transition-colors cursor-pointer group flex items-start justify-between">
+                            <div>
+                                <div className="bg-blue-50 w-10 h-10 rounded-full flex items-center justify-center text-blue-600 mb-3">
                                     <Package className="w-5 h-5" />
                                 </div>
-                                <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
+                                <h3 className="font-bold text-gray-800">My Orders</h3>
+                                <p className="text-xs text-gray-500 mt-1">Check order status & returns</p>
                             </div>
-                            <h3 className="font-bold text-gray-800">My Orders</h3>
-                            <p className="text-xs text-gray-500 mt-1">Check order status & returns</p>
+                            <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
                         </Link>
 
                         {/* Address Section */}
-                        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:border-pink-100 transition-colors cursor-pointer group">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="bg-green-50 p-2 rounded-full text-green-600">
+                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:border-pink-100 transition-colors cursor-pointer group flex items-start justify-between">
+                            <div>
+                                <div className="bg-green-50 w-10 h-10 rounded-full flex items-center justify-center text-green-600 mb-3">
                                     <MapPin className="w-5 h-5" />
                                 </div>
-                                <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
+                                <h3 className="font-bold text-gray-800">My Addresses</h3>
+                                <p className="text-xs text-gray-500 mt-1">Manage delivery addresses</p>
                             </div>
-                            <h3 className="font-bold text-gray-800">My Addresses</h3>
-                            <p className="text-xs text-gray-500 mt-1">Manage delivery addresses</p>
+                            <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
                         </div>
 
                         {/* Settings Section */}
-                        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:border-pink-100 transition-colors cursor-pointer group">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="bg-purple-50 p-2 rounded-full text-purple-600">
+                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:border-pink-100 transition-colors cursor-pointer group flex items-start justify-between">
+                            <div>
+                                <div className="bg-purple-50 w-10 h-10 rounded-full flex items-center justify-center text-purple-600 mb-3">
                                     <Settings className="w-5 h-5" />
                                 </div>
-                                <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
+                                <h3 className="font-bold text-gray-800">Settings</h3>
+                                <p className="text-xs text-gray-500 mt-1">Notifications & privacy</p>
                             </div>
-                            <h3 className="font-bold text-gray-800">Settings</h3>
-                            <p className="text-xs text-gray-500 mt-1">Notifications & privacy</p>
+                            <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
                         </div>
 
-                        {/* Logout Section Placeholder for grid balance or other stats */}
-                        <div className="hidden md:block bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                            <h3 className="font-bold text-gray-800">Styliqo Points</h3>
-                            <p className="text-2xl font-bold text-primary mt-1">0</p>
-                            <p className="text-xs text-gray-500">Points expire in 30 days</p>
+                        {/* Points Section */}
+                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:border-pink-100 transition-colors cursor-pointer group">
+                            <h3 className="font-bold text-gray-800 mb-2">Styliqo Points</h3>
+                            <p className="text-3xl font-bold text-pink-500 mb-1">0</p>
+                            <p className="text-xs text-gray-400">Points expire in 30 days</p>
                         </div>
                     </div>
                 </div>

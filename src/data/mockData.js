@@ -1,24 +1,3 @@
-export const banners = [
-    {
-        id: 1,
-        image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop",
-        title: "Big Sale",
-        link: "/category/sale"
-    },
-    {
-        id: 2,
-        image: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=2070&auto=format&fit=crop",
-        title: "New Arrivals",
-        link: "/category/new"
-    },
-    {
-        id: 3,
-        image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=2070&auto=format&fit=crop",
-        title: "Trending Fashion",
-        link: "/category/trending"
-    }
-];
-
 export const categories = [
     { id: 1, name: "Sarees", image: "https://image.pollinations.ai/prompt/Indian%20woman%20wearing%20pink%20kanjivaram%20saree?width=500&height=500&seed=1&nologo=true" },
     { id: 2, name: "Kurtis", image: "https://image.pollinations.ai/prompt/Indian%20girl%20wearing%20stylish%20kurti?width=500&height=500&seed=2&nologo=true" },

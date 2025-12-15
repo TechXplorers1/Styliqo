@@ -12,8 +12,9 @@ import AdminDashboard from './pages/AdminDashboard';
 import AddProductPage from './pages/AddProductPage';
 import ProfilePage from './pages/ProfilePage';
 import OrdersPage from './pages/OrdersPage'; // NEW IMPORT
-import AuthGuard from './components/auth/AuthGuard'; // NEW IMPORT
-import AuthProvider from './context/AuthContext'; // NEW IMPORT (assuming AuthProvider is a context provider)
+import AuthGuard from './components/auth/AuthGuard';
+import AdminGuard from './components/auth/AdminGuard';
+import AuthProvider from './context/AuthContext';
 import useAuthStore from './store/useAuthStore';
 
 const App = () => { // Changed from function App()
@@ -62,9 +63,10 @@ const App = () => { // Changed from function App()
           </Route>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/admin" element={<MainLayout />}>
+          <Route path="/admin" element={<AdminGuard><MainLayout /></AdminGuard>}>
             <Route index element={<AdminDashboard />} />
             <Route path="add-product" element={<AddProductPage />} />
+            <Route path="edit-product/:id" element={<AddProductPage />} />
           </Route>
         </Routes>
       </AuthProvider>

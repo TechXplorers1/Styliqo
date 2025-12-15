@@ -5,18 +5,18 @@ import Input from '../components/common/Input';
 import { Lock, CreditCard, ShoppingBag, CheckCircle, ShieldCheck, Truck } from 'lucide-react';
 import useCartStore from '../store/useCartStore';
 import useAuthStore from '../store/useAuthStore';
-import useOrderStore from '../store/useOrderStore';
+import { addOrder } from '../lib/firebase';
 
 const CheckoutPage = () => {
     const navigate = useNavigate();
     const { items: cartItems, totalPrice, clearCart } = useCartStore();
-    const addOrder = useOrderStore(state => state.addOrder);
+    // const addOrder = useOrderStore(state => state.addOrder); // Removed local store
     const { user } = useAuthStore();
 
     // Form States
     const [step, setStep] = useState(1); // 1: Address, 2: Payment, 3: Success
     const [formData, setFormData] = useState({
-        name: user?.name || '',
+        name: user?.displayName || '', // Changed to displayName based on user object structure
         phone: '',
         houseNo: '',
         roadName: '',
@@ -48,28 +48,33 @@ const CheckoutPage = () => {
         setStep(2);
     };
 
-    const handlePayment = () => {
-        // Simulate Payment Processing
+    const handlePayment = async () => {
         setIsProcessing(true);
-        setTimeout(() => {
-            setIsProcessing(false);
 
-            // Create Order
+        try {
+            // Create Order Object
             const newOrder = {
-                id: Math.floor(100000 + Math.random() * 900000).toString(),
-                date: new Date().toISOString(),
-                status: 'Processing', // Ordered -> Shipped -> Out for Delivery -> Delivered
+                userId: user?.uid || 'guest',
+                userEmail: user?.email || 'guest@example.com',
+                status: 'Upcoming', // Use 'Upcoming' as the initial status for Admin to accept
                 items: cartItems,
-                total: totalPrice(),
-                address: formData,
-                paymentMethod: paymentMethod
+                totalAmount: totalPrice(),
+                shippingAddress: formData,
+                paymentMethod: paymentMethod,
+                updatedAt: new Date()
             };
 
-            addOrder(newOrder);
+            await addOrder(newOrder); // Call Firebase function
+
             clearCart();
             setStep(3);
             window.scrollTo(0, 0);
-        }, 2000);
+        } catch (error) {
+            console.error("Order Placement Error:", error);
+            alert("Failed to place order. Please try again.");
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const totalAmount = totalPrice();
