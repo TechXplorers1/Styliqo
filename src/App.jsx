@@ -12,6 +12,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import AddProductPage from './pages/AddProductPage';
 import ProfilePage from './pages/ProfilePage';
 import OrdersPage from './pages/OrdersPage'; // NEW IMPORT
+import AddressesPage from './pages/AddressesPage';
+import CleanupPage from './pages/CleanupPage';
 import AuthGuard from './components/auth/AuthGuard';
 import AdminGuard from './components/auth/AdminGuard';
 import AuthProvider from './context/AuthContext';
@@ -50,11 +52,19 @@ const App = () => { // Changed from function App()
                 </AuthGuard>
               }
             />
-            <Route // NEW ROUTE
+            <Route
               path="/orders"
               element={
                 <AuthGuard>
                   <OrdersPage />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/addresses"
+              element={
+                <AuthGuard>
+                  <AddressesPage />
                 </AuthGuard>
               }
             />
@@ -67,6 +77,7 @@ const App = () => { // Changed from function App()
             <Route index element={<AdminDashboard />} />
             <Route path="add-product" element={<AddProductPage />} />
             <Route path="edit-product/:id" element={<AddProductPage />} />
+            <Route path="cleanup" element={<CleanupPage />} />
           </Route>
         </Routes>
       </AuthProvider>

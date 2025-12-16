@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Plus, Trash2, Edit, Menu } from 'lucide-react';
 import Button from '../components/common/Button';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import AdminStats from '../components/admin/AdminStats';
 import OrderManagement from '../components/admin/OrderManagement';
+import CustomersManagement from '../components/admin/CustomersManagement';
+import ConfirmationModal from '../components/common/ConfirmationModal';
+import SuccessModal from '../components/common/SuccessModal';
 import { getProducts, deleteProduct, addProduct } from '../lib/firebase';
 
 const AdminDashboard = () => {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('dashboard');
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // Modal state for delete only
+    const [deleteModal, setDeleteModal] = useState({ isOpen: false, productId: null, productName: '' });
+    const [successModal, setSuccessModal] = useState({ isOpen: false, message: '' });
 
     useEffect(() => {
         if (activeTab === 'products') {
@@ -28,15 +37,18 @@ const AdminDashboard = () => {
         }
     }, [activeTab]);
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            try {
-                await deleteProduct(id);
-                // List updates automatically via onSnapshot
-            } catch (error) {
-                console.error("Error deleting product:", error);
-                alert("Failed to delete product");
-            }
+    const handleDeleteClick = (product) => {
+        setDeleteModal({ isOpen: true, productId: product.id, productName: product.title });
+    };
+
+    const handleDeleteConfirm = async () => {
+        try {
+            await deleteProduct(deleteModal.productId);
+            setSuccessModal({ isOpen: true, message: 'Product deleted successfully!' });
+            // List updates automatically via onSnapshot
+        } catch (error) {
+            console.error("Error deleting product:", error);
+            alert("Failed to delete product");
         }
     };
 
@@ -100,10 +112,10 @@ const AdminDashboard = () => {
             case 'products':
                 return (
                     <div>
-                        <div className="flex justify-between items-center mb-6">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                             <h2 className="text-2xl font-bold">Products</h2>
-                            <Link to="/admin/add-product">
-                                <Button variant="primary">
+                            <Link to="/admin/add-product" className="w-full md:w-auto">
+                                <Button variant="primary" className="w-full md:w-auto">
                                     <Plus className="w-5 h-5 mr-2" />
                                     Add New Product
                                 </Button>
@@ -143,7 +155,7 @@ const AdminDashboard = () => {
                                                                 <img className="h-10 w-10 rounded-full object-cover" src={product.image} alt="" />
                                                             </div>
                                                             <div className="ml-4">
-                                                                <div className="text-sm font-medium text-gray-900">{product.title}</div>
+                                                                <div className="text-sm font-medium text-gray-900 line-clamp-1 max-w-[150px]">{product.title}</div>
                                                                 {/* <div className="text-sm text-gray-500">ID: {product.id}</div> */}
                                                             </div>
                                                         </div>
@@ -155,11 +167,14 @@ const AdminDashboard = () => {
                                                         {product.category}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                        <Link to={`/admin/edit-product/${product.id}`} className="text-indigo-600 hover:text-indigo-900 mr-4 inline-block">
+                                                        <Link
+                                                            to={`/admin/edit-product/${product.id}`}
+                                                            className="text-indigo-600 hover:text-indigo-900 mr-4 inline-block"
+                                                        >
                                                             <Edit className="w-5 h-5" />
                                                         </Link>
                                                         <button
-                                                            onClick={() => handleDelete(product.id)}
+                                                            onClick={() => handleDeleteClick(product)}
                                                             className="text-red-600 hover:text-red-900"
                                                         >
                                                             <Trash2 className="w-5 h-5" />
@@ -177,24 +192,53 @@ const AdminDashboard = () => {
             case 'orders':
                 return <OrderManagement />;
             case 'customers':
-            case 'analytics':
-                return (
-                    <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
-                        <h2 className="text-2xl font-bold text-gray-300">Coming Soon</h2>
-                        <p className="text-gray-400 mt-2">This feature is under development</p>
-                    </div>
-                );
+                return <CustomersManagement />;
             default:
                 return null;
         }
     };
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
-            <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-            <div className="flex-1 p-8 overflow-y-auto h-screen">
+        <div className="flex min-h-screen bg-gray-50 flex-col md:flex-row">
+            {/* Mobile Header */}
+            <div className="bg-white border-b p-4 md:hidden flex items-center justify-between shadow-sm sticky top-0 z-30">
+                <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-full">
+                    <Menu className="w-6 h-6" />
+                </button>
+                <span className="font-bold text-lg text-primary">Styliqo Admin</span>
+                <div className="w-8"></div> {/* Spacer for center alignment */}
+            </div>
+
+            <AdminSidebar
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+            />
+
+            <div className="flex-1 p-4 md:p-8 overflow-y-auto h-screen">
                 {renderContent()}
             </div>
+
+            {/* Delete Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={deleteModal.isOpen}
+                onClose={() => setDeleteModal({ isOpen: false, productId: null, productName: '' })}
+                onConfirm={handleDeleteConfirm}
+                title="Delete Product?"
+                message={`Are you sure you want to delete "${deleteModal.productName}"? This action cannot be undone.`}
+                confirmText="Delete"
+                confirmVariant="primary"
+                cancelText="Cancel"
+            />
+
+            {/* Success Modal */}
+            <SuccessModal
+                isOpen={successModal.isOpen}
+                onClose={() => setSuccessModal({ isOpen: false, message: '' })}
+                title="Success!"
+                message={successModal.message}
+            />
         </div>
     );
 };

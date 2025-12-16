@@ -67,7 +67,7 @@ const FilterSidebar = ({ filters, onFilterChange, onClearAll }) => {
 
                 <FilterSection
                     title="Category"
-                    options={['Sarees', 'Kurtis', 'Western', 'Men', 'Kids', 'Jewellery', 'Footwear']}
+                    options={['Western', 'Men', 'Kids', 'Jewellery', 'Footwear']}
                     selectedOptions={filters.category}
                     onChange={(vals) => updateFilter('category', vals)}
                     isOpenDefault={true}

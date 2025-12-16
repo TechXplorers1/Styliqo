@@ -12,7 +12,10 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const setUser = useAuthStore(state => state.setUser);
 
+    const [loginError, setLoginError] = React.useState('');
+
     const onSubmit = async (data) => {
+        setLoginError('');
         try {
             const userCredential = await loginUser(data.email, data.password);
             setUser(userCredential.user);
@@ -23,7 +26,11 @@ const LoginPage = () => {
             }
         } catch (error) {
             console.error(error);
-            alert('Login Failed: ' + error.message);
+            if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                setLoginError('Invalid email or password. Please try again.');
+            } else {
+                setLoginError('Login failed: ' + error.message);
+            }
         }
     };
 
@@ -44,6 +51,11 @@ const LoginPage = () => {
 
                 <div className="p-8">
                     <h2 className="text-xl font-bold text-center mb-6 text-gray-800">Login to Styliqo</h2>
+                    {loginError && (
+                        <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm mb-4 text-center border border-red-200">
+                            {loginError}
+                        </div>
+                    )}
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <Input
                             label="Email Address"

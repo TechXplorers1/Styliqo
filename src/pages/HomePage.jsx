@@ -3,17 +3,22 @@ import { useSearchParams } from 'react-router-dom';
 import CategoryRow from '../components/home/CategoryRow';
 import ProductCard from '../components/common/ProductCard';
 import FilterSidebar from '../components/home/FilterSidebar';
-import { products } from '../data/mockData';
+import Hero from '../components/home/Hero';
+import { getProducts } from '../lib/firebase';
+import { Filter, SlidersHorizontal, Award } from 'lucide-react';
 
 const HomePage = () => {
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [activeFilters, setActiveFilters] = useState({
         category: [],
         price: [],
         rating: []
     });
     const [sortOption, setSortOption] = useState('Relevance');
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-    const [filteredProducts, setFilteredProducts] = useState(products);
+    const [filteredProducts, setFilteredProducts] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
 
@@ -30,6 +35,21 @@ const HomePage = () => {
         setSortOption('Relevance');
         setSearchParams({});
     };
+
+    // Fetch products from Firestore
+    useEffect(() => {
+        const unsubscribe = getProducts(
+            (data) => {
+                setProducts(data);
+                setLoading(false);
+            },
+            (error) => {
+                console.error("Error fetching products:", error);
+                setLoading(false);
+            }
+        );
+        return () => unsubscribe();
+    }, []);
 
     useEffect(() => {
         let result = [...products];
@@ -83,81 +103,127 @@ const HomePage = () => {
         }
 
         setFilteredProducts(result);
-    }, [activeFilters, searchQuery, sortOption]);
+    }, [activeFilters, searchQuery, sortOption, products]);
 
 
-    return (
-        <div className="bg-background min-h-screen">
-            {/* Top Banner - App Download Gradient */}
-            <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-pink-500 text-white py-8 px-4 mb-4">
-                <div className="container mx-auto flex items-center justify-between">
-                    <div>
-                        <h1 className="text-4xl font-bold mb-2">Lowest Prices <br /> Best Quality Shopping</h1>
-                        <div className="flex items-center space-x-4 bg-white/20 p-2 rounded backdrop-blur-sm w-max mt-4">
-                            <span className="font-bold"> Download the App </span>
-                        </div>
-                    </div>
-                    {/* Decorative element resembling the image somewhat */}
-                    <div className="hidden md:block">
-                        <div className="bg-white/10 w-64 h-32 rounded-lg"></div>
-                    </div>
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading products...</p>
                 </div>
             </div>
+        );
+    }
 
-            <div className="container mx-auto px-4">
-                <CategoryRow />
+    return (
+        <div className="bg-gray-50/50 min-h-screen pb-20">
+            <div className="container mx-auto px-4 pt-6">
 
-                {/* Gold Banner */}
-                <div className="bg-gradient-to-r from-yellow-900 to-yellow-600 rounded-lg p-6 mb-8 relative overflow-hidden text-white shadow-lg">
-                    <div className="relative z-10">
-                        <h2 className="text-2xl font-bold text-yellow-100 mb-1">Styliqo Gold</h2>
-                        <p className="text-yellow-200 text-sm">Premium Quality Products</p>
+                {/* Hero Section */}
+                <Hero />
+
+                {/* Categories */}
+                <div className="mb-12">
+                    <div className="flex items-center justify-between mb-6 px-1">
+                        <h2 className="text-2xl font-bold text-gray-900">Shop by Category</h2>
+                        {/* <button className="text-primary font-bold text-sm hover:underline">View All</button> */}
                     </div>
+                    <CategoryRow />
                 </div>
 
-                <div className="flex items-start">
-                    {/* Left Sidebar (Desktop) */}
+                {/* Promotion Banner */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-700 via-amber-600 to-yellow-600 text-white shadow-xl mb-12 p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="relative z-10 text-center md:text-left">
+                        <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                            <Award className="w-6 h-6 text-yellow-300" />
+                            <span className="font-bold text-yellow-200 tracking-wide uppercase text-sm">Premium Membership</span>
+                        </div>
+                        <h2 className="text-3xl font-bold text-white mb-2">Styliqo Gold</h2>
+                        <p className="text-yellow-100 max-w-md">Unlock exclusive access to premium collections, early sales, and free express delivery on all orders.</p>
+                    </div>
+                    <button className="relative z-10 bg-white text-amber-900 px-8 py-3 rounded-full font-bold shadow-lg hover:bg-yellow-50 transition-colors">
+                        Upgrade for ₹99
+                    </button>
+                    {/* Decorative Circles */}
+                    <div className="absolute -top-24 -right-24 w-64 h-64 bg-yellow-500 rounded-full mix-blend-overlay opacity-20 blur-3xl"></div>
+                    <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-amber-900 rounded-full mix-blend-overlay opacity-30 blur-3xl"></div>
+                </div>
+
+                <div className="flex flex-col lg:flex-row gap-8 items-start">
+                    {/* Filter Sidebar - Desktop */}
                     <FilterSidebar
                         filters={activeFilters}
                         onFilterChange={handleFilterChange}
                         onClearAll={handleClearAll}
                     />
 
-                    {/* Right Content (Product Grid) */}
-                    <div className="flex-1">
-                        <div className="mb-6 flex items-center justify-between">
-                            <h2 className="text-2xl font-bold text-gray-800">
-                                Products For You
-                                <span className="text-sm font-normal text-gray-500 ml-2">({filteredProducts.length} items)</span>
-                            </h2>
+                    {/* Main Content */}
+                    <div className="flex-1 w-full">
+                        {/* Toolbar */}
+                        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm mb-6 flex flex-wrap items-center justify-between gap-4 sticky top-20 z-20">
+                            <div>
+                                <h2 className="text-xl font-bold text-gray-900">
+                                    All Products
+                                </h2>
+                                <p className="text-sm text-gray-500 mt-0.5">Showing {filteredProducts.length} results</p>
+                            </div>
 
-                            {/* Sort Dropdown */}
-                            <div className="flex items-center space-x-2 text-sm border border-gray-300 rounded px-3 py-2 bg-white hover:border-primary transition-colors">
-                                <span className="text-gray-500">Sort by:</span>
-                                <select
-                                    value={sortOption}
-                                    onChange={(e) => setSortOption(e.target.value)}
-                                    className="font-bold bg-transparent outline-none cursor-pointer text-gray-800"
+                            <div className="flex items-center gap-3">
+                                {/* Mobile Filter Toggle */}
+                                <button
+                                    className="lg:hidden flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50"
+                                    onClick={() => setShowMobileFilters(!showMobileFilters)}
                                 >
-                                    <option value="Relevance">Relevance</option>
-                                    <option value="Price: Low to High">Price: Low to High</option>
-                                    <option value="Price: High to Low">Price: High to Low</option>
-                                    <option value="Rating">Rating: High to Low</option>
-                                </select>
+                                    <Filter className="w-4 h-4" /> Filters
+                                </button>
+
+                                {/* Sort Dropdown */}
+                                <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg border border-transparent hover:border-primary/20 transition-colors">
+                                    <span className="text-sm text-gray-500 font-medium hidden sm:inline">Sort by:</span>
+                                    <select
+                                        value={sortOption}
+                                        onChange={(e) => setSortOption(e.target.value)}
+                                        className="bg-transparent text-sm font-bold text-gray-900 outline-none cursor-pointer"
+                                    >
+                                        <option value="Relevance">Relevance</option>
+                                        <option value="Price: Low to High">Price: Low to High</option>
+                                        <option value="Price: High to Low">Price: High to Low</option>
+                                        <option value="Rating">Rating: High to Low</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
+                        {/* Mobile Filter Drawer (Optional implementation, currently just cond. rendering sidebar logic could go here, but sidebar is hidden on mobile via CSS) */}
+                        {showMobileFilters && (
+                            <div className="lg:hidden mb-6">
+                                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-lg">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="font-bold">Filters</h3>
+                                        <button onClick={() => setShowMobileFilters(false)} className="text-gray-500">Close</button>
+                                    </div>
+                                    {/* Re-using components logic manually or refactor FilterSidebar to be mobile aware. For now simple mobile message or partial reuse */}
+                                    {/* In a real app, wrap sidebar in a responsive drawer component */}
+                                    <p className="text-sm text-gray-500 italic">Please use the desktop view for full filtering experience or rotate device.</p>
+                                </div>
+                            </div>
+                        )}
+
                         {filteredProducts.length > 0 ? (
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                                 {filteredProducts.map(product => (
                                     <ProductCard key={product.id} product={product} />
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-20 bg-white rounded-lg border border-dashed border-gray-300">
-                                <p className="text-xl text-gray-400 font-medium">No products found matching filters</p>
-                                <button onClick={handleClearAll} className="mt-4 text-primary font-bold hover:underline">
-                                    Clear Filters
+                            <div className="text-center py-32 bg-white rounded-2xl border border-dashed border-gray-200">
+                                <SlidersHorizontal className="w-16 h-16 text-gray-200 mx-auto mb-4" />
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">No products found</h3>
+                                <p className="text-gray-500 mb-6">Try adjusting your filters or search query</p>
+                                <button onClick={handleClearAll} className="text-primary font-bold hover:underline">
+                                    Clear all filters
                                 </button>
                             </div>
                         )}

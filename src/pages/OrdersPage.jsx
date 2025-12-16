@@ -1,21 +1,76 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Package, Truck, CheckCircle, Clock, ChevronLeft } from 'lucide-react';
-import useOrderStore from '../store/useOrderStore';
+import useAuthStore from '../store/useAuthStore';
+import { getUserOrders } from '../lib/firebase';
 import LazyImage from '../components/common/LazyImage';
 
 const OrdersPage = () => {
-    const orders = useOrderStore(state => state.orders);
+    const { user } = useAuthStore();
+    const navigate = useNavigate();
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
+        const unsubscribe = getUserOrders(user.uid, (data) => {
+            // Sort by date desc
+            const sorted = data.sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds);
+            setOrders(sorted);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching orders:", error);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [user, navigate]);
 
     const getStatusStep = (status) => {
         switch (status) {
-            case 'Processing': return 1;
+            case 'Ordered': return 1;
+            case 'Upcoming': return 1;
+            case 'Approved': return 1;
+            case 'Packing': return 1;
             case 'Shipped': return 2;
+            case 'Shipping': return 2; // Handle new status from Admin
             case 'Out for Delivery': return 3;
             case 'Delivered': return 4;
-            default: return 1;
+            default: return 0;
         }
     };
+
+    // Helper to format date safely
+    const formatDate = (timestamp) => {
+        if (!timestamp) return 'Date N/A';
+        // Handle Firestore Timestamp or JS Date
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        return date.toLocaleDateString();
+    };
+
+    // Helper to format status text
+    const formatStatus = (status) => {
+        if (status === 'Upcoming') return 'Ordered';
+        return status;
+    };
+
+    // Helper to get status color
+    const getStatusColor = (status) => {
+        if (status === 'Declined') return 'bg-red-100 text-red-600';
+        return 'bg-green-100 text-green-600'; // Green for all active statuses
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-8">
@@ -41,6 +96,7 @@ const OrdersPage = () => {
                     <div className="space-y-6">
                         {orders.map((order) => {
                             const currentStep = getStatusStep(order.status);
+                            const isDeclined = order.status === 'Declined';
 
                             return (
                                 <div key={order.id} className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
@@ -48,52 +104,60 @@ const OrdersPage = () => {
                                     <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4">
                                         <div>
                                             <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Order ID</p>
-                                            <p className="font-mono font-medium text-gray-800">#{order.id}</p>
+                                            <p className="font-mono font-medium text-gray-800">#{order.id.slice(0, 8)}</p>
                                         </div>
                                         <div>
                                             <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Date</p>
-                                            <p className="text-sm text-gray-800">{new Date(order.date).toLocaleDateString()}</p>
+                                            <p className="text-sm text-gray-800">{formatDate(order.createdAt)}</p>
                                         </div>
                                         <div>
                                             <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Total Amount</p>
-                                            <p className="font-bold text-primary">₹{order.total}</p>
+                                            <p className="font-bold text-primary">₹{order.totalAmount}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Status</p>
+                                            <span className={`inline-block px-2 py-1 text-xs font-bold rounded ${getStatusColor(order.status)}`}>
+                                                {formatStatus(order.status)}
+                                            </span>
                                         </div>
                                     </div>
 
-                                    {/* Tracking Stepper */}
-                                    <div className="px-6 py-6 border-b border-gray-100">
-                                        <div className="relative">
-                                            {/* Progress Bar Background */}
-                                            <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 -translate-y-1/2 z-0 hidden md:block"></div>
-                                            {/* Active Progress */}
-                                            <div
-                                                className="absolute top-1/2 left-0 h-1 bg-green-500 -translate-y-1/2 z-0 transition-all duration-500 hidden md:block"
-                                                style={{ width: `${((currentStep - 1) / 3) * 100}%` }}
-                                            ></div>
+                                    {/* Tracking Stepper - Hide if declined */}
+                                    {!isDeclined && (
+                                        <div className="px-6 py-6 border-b border-gray-100 hidden md:block">
+                                            <div className="relative">
+                                                {/* Progress Bar Background */}
+                                                <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
+                                                {/* Active Progress */}
+                                                <div
+                                                    className="absolute top-1/2 left-0 h-1 bg-green-500 -translate-y-1/2 z-0 transition-all duration-500"
+                                                    style={{ width: `${((currentStep - 1) / 3) * 100}%` }}
+                                                ></div>
 
-                                            <div className="flex justify-between relative z-10">
-                                                {['Ordered', 'Shipped', 'Out for Delivery', 'Delivered'].map((step, index) => {
-                                                    const stepNum = index + 1;
-                                                    const isCompleted = stepNum <= currentStep;
-                                                    const isCurrent = stepNum === currentStep;
+                                                <div className="flex justify-between relative z-10">
+                                                    {['Ordered', 'Shipped', 'Out for Delivery', 'Delivered'].map((step, index) => {
+                                                        const stepNum = index + 1;
+                                                        const isCompleted = stepNum <= currentStep;
+                                                        const isCurrent = stepNum === currentStep;
 
-                                                    return (
-                                                        <div key={step} className="flex flex-col items-center">
-                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${isCompleted
+                                                        return (
+                                                            <div key={step} className="flex flex-col items-center">
+                                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${isCompleted
                                                                     ? 'bg-green-500 border-green-500 text-white'
                                                                     : 'bg-white border-gray-300 text-gray-300'
-                                                                }`}>
-                                                                {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Clock className="w-4 h-4" />}
+                                                                    }`}>
+                                                                    {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Clock className="w-4 h-4" />}
+                                                                </div>
+                                                                <span className={`text-xs mt-2 font-medium ${isCurrent ? 'text-green-600' : 'text-gray-400'}`}>
+                                                                    {step}
+                                                                </span>
                                                             </div>
-                                                            <span className={`text-xs mt-2 font-medium ${isCurrent ? 'text-green-600' : 'text-gray-400'}`}>
-                                                                {step}
-                                                            </span>
-                                                        </div>
-                                                    );
-                                                })}
+                                                        );
+                                                    })}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    )}
 
                                     {/* Order Items */}
                                     <div className="p-6">
@@ -113,13 +177,6 @@ const OrdersPage = () => {
                                             ))}
                                         </div>
                                     </div>
-
-                                    {/* Footer Actions */}
-                                    {order.status === 'Delivered' && (
-                                        <div className="px-6 py-4 bg-gray-50 text-right">
-                                            <button className="text-primary text-sm font-bold hover:underline">Write a Review</button>
-                                        </div>
-                                    )}
                                 </div>
                             );
                         })}

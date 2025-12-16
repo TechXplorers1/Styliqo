@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
+import ConfirmationModal from '../components/common/ConfirmationModal';
+import SuccessModal from '../components/common/SuccessModal';
 import { addProduct, getProduct, updateProduct, uploadImage } from '../lib/firebase';
 
 const AddProductPage = () => {
@@ -12,6 +15,9 @@ const AddProductPage = () => {
     const [loading, setLoading] = useState(false);
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState('');
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [pendingFormData, setPendingFormData] = useState(null);
+    const [successModal, setSuccessModal] = useState({ isOpen: false, message: '' });
 
     const isEditMode = !!id;
 
@@ -49,6 +55,18 @@ const AddProductPage = () => {
     };
 
     const onSubmit = async (data) => {
+        // If in edit mode, show confirmation modal first
+        if (isEditMode) {
+            setPendingFormData(data);
+            setShowUpdateModal(true);
+            return;
+        }
+
+        // For new products, proceed directly
+        await performSubmit(data);
+    };
+
+    const performSubmit = async (data) => {
         setLoading(true);
         try {
             let imageUrl = imagePreview;
@@ -80,12 +98,11 @@ const AddProductPage = () => {
 
             if (isEditMode) {
                 await updateProduct(id, productData);
-                alert('Product Updated Successfully!');
+                setSuccessModal({ isOpen: true, message: 'Product updated successfully!' });
             } else {
                 await addProduct(productData);
-                alert('Product Added Successfully!');
+                setSuccessModal({ isOpen: true, message: 'Product added successfully!' });
             }
-            navigate('/admin');
         } catch (error) {
             console.error("Error saving product:", error);
             alert("Failed to save product: " + error.message);
@@ -100,7 +117,17 @@ const AddProductPage = () => {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-2xl bg-white rounded shadow my-8">
-            <h1 className="text-2xl font-bold mb-6">{isEditMode ? 'Edit Product' : 'Add New Product'}</h1>
+            {/* Header with back button */}
+            <div className="flex items-center gap-3 mb-6">
+                <button
+                    onClick={() => navigate('/admin')}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    type="button"
+                >
+                    <ArrowLeft className="w-5 h-5 text-gray-600" />
+                </button>
+                <h1 className="text-2xl font-bold">{isEditMode ? 'Edit Product' : 'Add New Product'}</h1>
+            </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <Input
@@ -186,6 +213,37 @@ const AddProductPage = () => {
                     </Button>
                 </div>
             </form>
+
+            {/* Update Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={showUpdateModal}
+                onClose={() => {
+                    setShowUpdateModal(false);
+                    setPendingFormData(null);
+                }}
+                onConfirm={() => {
+                    setShowUpdateModal(false);
+                    if (pendingFormData) {
+                        performSubmit(pendingFormData);
+                    }
+                }}
+                title="Update Product?"
+                message="Are you sure you want to edit this product?"
+                confirmText="Edit"
+                confirmVariant="primary"
+                cancelText="Cancel"
+            />
+
+            {/* Success Modal */}
+            <SuccessModal
+                isOpen={successModal.isOpen}
+                onClose={() => {
+                    setSuccessModal({ isOpen: false, message: '' });
+                    navigate('/admin');
+                }}
+                title="Success!"
+                message={successModal.message}
+            />
         </div>
     );
 };

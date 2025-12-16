@@ -6,7 +6,7 @@ import Button from '../common/Button';
 const OrderManagement = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('Upcoming');
+    const [activeTab, setActiveTab] = useState('Ordered');
 
     useEffect(() => {
         const unsubscribe = getOrders(
@@ -47,10 +47,8 @@ const OrderManagement = () => {
 
     // Tabs map: Tab Name -> Filter Function
     const tabs = [
-        { name: 'Upcoming', filter: (status) => status === 'Upcoming' },
-        { name: 'Approved', filter: (status) => status === 'Approved' },
-        { name: 'Packing', filter: (status) => status === 'Packing' },
-        { name: 'Shipping', filter: (status) => status === 'Shipping' },
+        { name: 'Ordered', filter: (status) => ['Ordered', 'pending', 'Upcoming', 'Approved', 'Packing'].includes(status) },
+        { name: 'Shipped', filter: (status) => status === 'Shipping' },
         { name: 'Out for Delivery', filter: (status) => status === 'Out for Delivery' },
         { name: 'Delivered', filter: (status) => status === 'Delivered' },
     ];
@@ -62,13 +60,15 @@ const OrderManagement = () => {
 
     const renderActionButtons = (order) => {
         switch (order.status) {
+            case 'Ordered':
+            case 'pending':
             case 'Upcoming':
                 return (
                     <div className="flex gap-2">
                         <Button
                             variant="primary"
                             className="bg-green-600 hover:bg-green-700 text-sm py-1"
-                            onClick={() => handleStatusUpdate(order.id, 'Approved')}
+                            onClick={() => handleStatusUpdate(order.id, 'Shipping')}
                         >
                             Accept
                         </Button>
@@ -81,17 +81,8 @@ const OrderManagement = () => {
                         </Button>
                     </div>
                 );
-            case 'Approved':
-                return (
-                    <Button
-                        variant="primary"
-                        className="text-sm py-1"
-                        onClick={() => handleStatusUpdate(order.id, 'Packing')}
-                    >
-                        Move to Packing
-                    </Button>
-                );
-            case 'Packing':
+            case 'Approved': // Fallback for legacy orders
+            case 'Packing':  // Fallback for legacy orders
                 return (
                     <Button
                         variant="primary"
@@ -108,7 +99,7 @@ const OrderManagement = () => {
                         className="text-sm py-1"
                         onClick={() => handleStatusUpdate(order.id, 'Out for Delivery')}
                     >
-                        Move to Out for Delivery
+                        Out for Delivery
                     </Button>
                 );
             case 'Out for Delivery':
@@ -118,7 +109,7 @@ const OrderManagement = () => {
                         className="text-sm py-1"
                         onClick={() => handleStatusUpdate(order.id, 'Delivered')}
                     >
-                        Move to Delivered
+                        Delivered
                     </Button>
                 );
             default:
@@ -137,8 +128,8 @@ const OrderManagement = () => {
                         key={tab.name}
                         onClick={() => setActiveTab(tab.name)}
                         className={`px-4 py-2 whitespace-nowrap font-medium transition-colors border-b-2 ${activeTab === tab.name
-                                ? 'border-primary text-primary'
-                                : 'border-transparent text-gray-500 hover:text-gray-700'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-gray-500 hover:text-gray-700'
                             }`}
                     >
                         {tab.name}

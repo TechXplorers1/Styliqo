@@ -1,12 +1,10 @@
 export const categories = [
-    { id: 1, name: "Sarees", image: "https://image.pollinations.ai/prompt/Indian%20woman%20wearing%20pink%20kanjivaram%20saree?width=500&height=500&seed=1&nologo=true" },
-    { id: 2, name: "Kurtis", image: "https://image.pollinations.ai/prompt/Indian%20girl%20wearing%20stylish%20kurti?width=500&height=500&seed=2&nologo=true" },
-    { id: 3, name: "Western", image: "https://image.pollinations.ai/prompt/Fashion%20model%20wearing%20modern%20dress?width=500&height=500&seed=3&nologo=true" },
-    { id: 4, name: "Men", image: "https://image.pollinations.ai/prompt/Handsome%20Indian%20man%20fashion?width=500&height=500&seed=4&nologo=true" },
-    { id: 5, name: "Kids", image: "https://image.pollinations.ai/prompt/Cute%20kids%20fashion%20photography?width=500&height=500&seed=5&nologo=true" },
-    { id: 6, name: "Jewellery", image: "https://image.pollinations.ai/prompt/Gold%20necklace%20Indian%20jewellery?width=500&height=500&seed=6&nologo=true" },
-    { id: 7, name: "Bags", image: "https://image.pollinations.ai/prompt/Stylish%20ladies%20handbag?width=500&height=500&seed=7&nologo=true" },
-    { id: 8, name: "Footwear", image: "https://image.pollinations.ai/prompt/Men%20running%20shoes?width=500&height=500&seed=8&nologo=true" },
+    { id: 1, name: 'Western', image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=400&fit=crop' },
+    { id: 2, name: 'Men', image: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=400&h=400&fit=crop' },
+    { id: 3, name: 'Kids', image: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=400&fit=crop' },
+    { id: 4, name: 'Jewellery', image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=400&fit=crop' },
+    { id: 5, name: 'Bags', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop' },
+    { id: 6, name: 'Footwear', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop' },
 ];
 
 export const products = [

@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
-import { getFirestore, collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, getDoc } from "firebase/firestore";
+import { getFirestore, collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, getDoc, query, where, orderBy, getDocs } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
 
@@ -65,7 +65,39 @@ export const registerUser = async (email, password, fullName) => {
     }
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(userCredential.user, { displayName: fullName });
+
+    // Store user in Firestore
+    try {
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+            uid: userCredential.user.uid,
+            displayName: fullName,
+            email: email,
+            role: 'user', // Default role
+            createdAt: new Date()
+        });
+    } catch (e) {
+        console.error("Error storing user details:", e);
+        // Continue even if storing details fails, auth is successful
+    }
+
     return userCredential;
+};
+
+export const getUsers = (callback, onError) => {
+    if (!db || !db.app) {
+        if (callback) callback([]);
+        return () => { };
+    }
+    return onSnapshot(collection(db, "users"),
+        (snapshot) => {
+            const data = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+            if (callback) callback(data);
+        },
+        (error) => {
+            console.error("Firestore Error (Users):", error);
+            if (onError) onError(error);
+        }
+    );
 };
 
 export const logoutUser = async () => {
@@ -130,10 +162,20 @@ export const getProduct = async (id) => {
 
 export const addOrder = async (orderData) => {
     if (!db || !db.app) throw new Error("Database not connected (Mock Mode)");
-    return addDoc(collection(db, "orders"), {
-        ...orderData,
-        createdAt: new Date()
-    });
+
+    try {
+        console.log("Adding order to Firestore:", orderData);
+        const docRef = await addDoc(collection(db, "orders"), {
+            ...orderData,
+            // Only add createdAt if not already provided
+            createdAt: orderData.createdAt || new Date().toISOString()
+        });
+        console.log("Order added successfully with ID:", docRef.id);
+        return docRef;
+    } catch (error) {
+        console.error("Error adding order to Firestore:", error);
+        throw error;
+    }
 };
 
 export const getOrders = (callback, onError) => {
@@ -159,6 +201,62 @@ export const updateOrderStatus = async (orderId, status) => {
     return updateDoc(doc(db, "orders", orderId), { status });
 };
 
+export const getUserOrders = (userId, callback, onError) => {
+    if (!db || !db.app) {
+        if (callback) callback([]);
+        if (onError) onError(new Error("Database not connected"));
+        return () => { };
+    }
+    // Removed orderBy to avoid index requirement - orders will be sorted client-side
+    const q = query(collection(db, "orders"), where("userId", "==", userId));
+    return onSnapshot(q,
+        (snapshot) => {
+            const data = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+            // Sort client-side by createdAt descending
+            data.sort((a, b) => {
+                const dateA = new Date(a.createdAt || 0);
+                const dateB = new Date(b.createdAt || 0);
+                return dateB - dateA; // Descending order (newest first)
+            });
+            if (callback) callback(data);
+        },
+        (error) => {
+            console.error("Firestore Error (User Orders):", error);
+            if (onError) onError(error);
+        }
+    );
+};
+
+// --- Address Wrappers ---
+
+export const addUserAddress = async (userId, addressData) => {
+    if (!db || !db.app) throw new Error("Database not connected (Mock Mode)");
+    // Add to a subcollection 'addresses' under the user document
+    return addDoc(collection(db, "users", userId, "addresses"), {
+        ...addressData,
+        createdAt: new Date()
+    });
+};
+
+export const getUserAddresses = (userId, callback, onError) => {
+    if (!db || !db.app) {
+        if (callback) callback([]);
+        if (onError) onError(new Error("Database not connected"));
+        return () => { };
+    }
+    const q = query(collection(db, "users", userId, "addresses"), orderBy("createdAt", "desc"));
+    return onSnapshot(q,
+        (snapshot) => {
+            const data = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+            if (callback) callback(data);
+        },
+        (error) => {
+            console.error("Firestore Error (Addresses):", error);
+            if (onError) onError(error);
+        }
+    );
+};
+
 // --- Storage Wrappers ---
 
 export const uploadImage = async (file) => {
@@ -171,6 +269,51 @@ export const uploadImage = async (file) => {
     const snapshot = await uploadBytes(storageRef, file);
     const downloadURL = await getDownloadURL(snapshot.ref);
     return downloadURL;
+};
+
+// Cleanup function to delete Sarees and Kurtis
+export const deleteSareesAndKurtis = async () => {
+    if (!db || !db.app) {
+        console.error("Database not connected");
+        return { success: false, error: "Database not connected" };
+    }
+
+    try {
+        console.log('Starting cleanup: Deleting Sarees and Kurtis from Firestore...');
+
+        const productsRef = collection(db, 'products');
+
+        // Query for Sarees
+        const sareesQuery = query(productsRef, where('category', '==', 'Sarees'));
+        const sareesSnapshot = await getDocs(sareesQuery);
+
+        // Query for Kurtis
+        const kurtisQuery = query(productsRef, where('category', '==', 'Kurtis'));
+        const kurtisSnapshot = await getDocs(kurtisQuery);
+
+        let deletedCount = 0;
+
+        // Delete Sarees
+        for (const docSnapshot of sareesSnapshot.docs) {
+            await deleteDoc(doc(db, 'products', docSnapshot.id));
+            deletedCount++;
+            console.log(`Deleted Saree: ${docSnapshot.data().title}`);
+        }
+
+        // Delete Kurtis
+        for (const docSnapshot of kurtisSnapshot.docs) {
+            await deleteDoc(doc(db, 'products', docSnapshot.id));
+            deletedCount++;
+            console.log(`Deleted Kurti: ${docSnapshot.data().title}`);
+        }
+
+        console.log(`✅ Cleanup complete! Deleted ${deletedCount} products.`);
+        return { success: true, deletedCount };
+
+    } catch (error) {
+        console.error('Error during cleanup:', error);
+        return { success: false, error: error.message };
+    }
 };
 
 export { auth, db, storage };

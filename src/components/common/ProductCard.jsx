@@ -1,19 +1,27 @@
 import React from 'react';
 import { Star, Heart, ShoppingCart } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from './Button';
 import LazyImage from './LazyImage';
 import useCartStore from '../../store/useCartStore';
 import useWishlistStore from '../../store/useWishlistStore';
 
 const ProductCard = ({ product }) => {
-    const addToCart = useCartStore(state => state.addItem);
+    const navigate = useNavigate();
+    const { addItem: addToCart, items: cartItems } = useCartStore();
     const { items: wishlistItems, toggleItem } = useWishlistStore();
     const isLiked = wishlistItems.some(i => i.id === product.id);
+    const isInCart = cartItems.some(item => item.id === product.id);
 
     const handleAddToCart = (e) => {
         e.preventDefault();
         addToCart(product);
+    };
+
+    const handleViewCart = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        navigate('/cart');
     };
 
     const handleHeartClick = (e) => {
@@ -32,7 +40,6 @@ const ProductCard = ({ product }) => {
                         alt={product.title}
                         className="w-full h-full"
                     />
-                    {/* Wishlist Icon */}
                     {/* Wishlist Icon */}
                     <button
                         onClick={handleHeartClick}
@@ -66,13 +73,32 @@ const ProductCard = ({ product }) => {
                         <div className="bg-gray-100 text-gray-500 text-[10px] uppercase font-bold px-1 rounded truncate">
                             Reviews ({product.reviews})
                         </div>
-                        <Button
-                            onClick={handleAddToCart}
-                            variant="outline"
-                            className="h-8 px-3 text-xs font-bold border-primary text-primary hover:bg-primary hover:text-white transition-colors"
-                        >
-                            <ShoppingCart className="w-3.5 h-3.5 mr-1" /> Add
-                        </Button>
+                        {isInCart ? (
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="outline"
+                                    className="h-8 px-2 text-xs font-bold border-green-600 text-green-600 bg-green-50"
+                                    disabled
+                                >
+                                    Added
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    className="h-8 px-2 text-xs font-bold"
+                                    onClick={handleViewCart}
+                                >
+                                    View Cart
+                                </Button>
+                            </div>
+                        ) : (
+                            <Button
+                                onClick={handleAddToCart}
+                                variant="outline"
+                                className="h-8 px-3 text-xs font-bold border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+                            >
+                                <ShoppingCart className="w-3.5 h-3.5 mr-1" /> Add
+                            </Button>
+                        )}
                     </div>
 
                 </div>

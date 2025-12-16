@@ -1,18 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ProductCard from '../components/common/ProductCard';
-import { products } from '../data/mockData';
+import { getProducts } from '../lib/firebase';
 
 const ProductListingPage = () => {
     const { category } = useParams();
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // Fetch products from Firestore
+    useEffect(() => {
+        const unsubscribe = getProducts(
+            (data) => {
+                setProducts(data);
+                setLoading(false);
+            },
+            (error) => {
+                console.error("Error fetching products:", error);
+                setLoading(false);
+            }
+        );
+        return () => unsubscribe();
+    }, []);
 
     // Filter products by category if provided, otherwise show all
-    const displayProducts = category
+    const displayProducts = (category && category.toLowerCase() !== 'all')
         ? products.filter(p => p.category.toLowerCase() === category.toLowerCase())
         : products;
 
     // Use products directly
     const finalProducts = displayProducts;
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading products...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-background min-h-screen">
