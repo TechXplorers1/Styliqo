@@ -5,9 +5,9 @@ const LazyImage = ({ src, alt, className, ...props }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     return (
-        <div className={cn("relative overflow-hidden bg-gray-200", className)}>
+        <div className={cn("relative overflow-hidden bg-gray-200 dark:bg-gray-800", className)}>
             {isLoading && (
-                <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+                <div className="absolute inset-0 bg-gray-200 dark:bg-gray-800 animate-pulse flex items-center justify-center">
                     <span className="sr-only">Loading...</span>
                 </div>
             )}

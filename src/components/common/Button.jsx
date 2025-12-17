@@ -14,9 +14,9 @@ const Button = ({
 
     const variants = {
         primary: 'bg-primary text-white hover:bg-primary-hover shadow-sm',
-        secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200',
-        outline: 'border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-700',
-        ghost: 'bg-transparent hover:bg-gray-100 text-gray-700',
+        secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700',
+        outline: 'border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800',
+        ghost: 'bg-transparent hover:bg-gray-100 text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800',
         danger: 'bg-red-500 text-white hover:bg-red-600',
     };
 

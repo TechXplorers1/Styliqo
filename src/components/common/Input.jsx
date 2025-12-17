@@ -12,7 +12,7 @@ const Input = forwardRef(({ className, error, label, type = "text", ...props }, 
     return (
         <div className="w-full">
             {label && (
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
                     {label}
                 </label>
             )}
@@ -21,7 +21,7 @@ const Input = forwardRef(({ className, error, label, type = "text", ...props }, 
                     ref={ref}
                     type={inputType}
                     className={cn(
-                        'flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 transition-all',
+                        'flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400',
                         error && 'border-red-500 focus:ring-red-500',
                         isPassword && 'pr-10', // Add padding right for icon
                         className

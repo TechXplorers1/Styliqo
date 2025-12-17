@@ -2,11 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { getOrders, updateOrderStatus } from '../../lib/firebase';
 import { Package, Truck, CheckCircle, Clock, XCircle, ShoppingBag } from 'lucide-react';
 import Button from '../common/Button';
+import ConfirmationModal from '../common/ConfirmationModal';
 
 const OrderManagement = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('Ordered');
+
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        orderId: null,
+        status: null,
+        title: '',
+        message: '',
+        confirmText: 'Confirm',
+        confirmVariant: 'primary'
+    });
 
     useEffect(() => {
         const unsubscribe = getOrders(
@@ -23,27 +34,41 @@ const OrderManagement = () => {
         return () => unsubscribe();
     }, []);
 
-    const handleStatusUpdate = async (orderId, newStatus) => {
-        if (window.confirm(`Are you sure you want to move this order to '${newStatus}'?`)) {
-            try {
-                await updateOrderStatus(orderId, newStatus);
-            } catch (error) {
-                console.error("Error updating status:", error);
-                alert("Failed to update status");
-            }
-        }
+    const handleStatusUpdate = (orderId, newStatus) => {
+        setConfirmModal({
+            isOpen: true,
+            orderId,
+            status: newStatus,
+            title: `Update Order Status`,
+            message: `Are you sure you want to move this order to '${newStatus}'?`,
+            confirmText: `Move to ${newStatus}`,
+            confirmVariant: 'primary'
+        });
     };
 
-    const handleDecline = async (orderId) => {
-        if (window.confirm(`Are you sure you want to DECLINE this order?`)) {
-            try {
-                await updateOrderStatus(orderId, 'Declined');
-            } catch (error) {
-                console.error("Error declining order:", error);
-                alert("Failed to decline order");
-            }
+    const handleDecline = (orderId) => {
+        setConfirmModal({
+            isOpen: true,
+            orderId,
+            status: 'Declined',
+            title: 'Decline Order',
+            message: 'Are you sure you want to DECLINE this order?',
+            confirmText: 'Decline Order',
+            confirmVariant: 'danger'
+        });
+    };
+
+    const executeStatusUpdate = async () => {
+        const { orderId, status } = confirmModal;
+        if (!orderId || !status) return;
+
+        try {
+            await updateOrderStatus(orderId, status);
+        } catch (error) {
+            console.error("Error updating status:", error);
+            alert("Failed to update status");
         }
-    }
+    };
 
     // Tabs map: Tab Name -> Filter Function
     const tabs = [
@@ -191,6 +216,16 @@ const OrderManagement = () => {
                     ))}
                 </div>
             )}
+            {/* Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={executeStatusUpdate}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                confirmText={confirmModal.confirmText}
+                confirmVariant={confirmModal.confirmVariant}
+            />
         </div>
     );
 };

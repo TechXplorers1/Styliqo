@@ -36,14 +36,14 @@ const AddressesPage = () => {
     if (authLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
+        <div className="min-h-screen bg-gray-50 pb-20 md:pb-8 dark:bg-gray-900">
             <div className="container mx-auto px-4 py-8 max-w-4xl">
                 {/* Header */}
                 <div className="flex items-center mb-6">
-                    <button onClick={() => navigate('/profile')} className="mr-4 p-2 hover:bg-gray-100 rounded-full transition-colors">
-                        <ArrowLeft className="w-5 h-5 text-gray-600" />
+                    <button onClick={() => navigate('/profile')} className="mr-4 p-2 hover:bg-gray-100 rounded-full transition-colors dark:hover:bg-gray-800">
+                        <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     </button>
-                    <h1 className="text-2xl font-bold text-gray-900">My Addresses</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Addresses</h1>
                 </div>
 
                 {loading ? (
@@ -52,10 +52,10 @@ const AddressesPage = () => {
                         <p className="text-gray-500 mt-2">Loading addresses...</p>
                     </div>
                 ) : addresses.length === 0 ? (
-                    <div className="bg-white rounded-lg shadow-sm p-8 text-center border border-dashed border-gray-200">
-                        <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                        <h3 className="text-lg font-medium text-gray-900">No Addresses Found</h3>
-                        <p className="text-gray-500 mb-6">You haven't saved any addresses yet.</p>
+                    <div className="bg-white rounded-lg shadow-sm p-8 text-center border border-dashed border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                        <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-3 dark:text-gray-600" />
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">No Addresses Found</h3>
+                        <p className="text-gray-500 mb-6 dark:text-gray-400">You haven't saved any addresses yet.</p>
                         <Button onClick={() => navigate('/checkout')} variant="primary">
                             Add Address at Checkout
                         </Button>
@@ -63,20 +63,20 @@ const AddressesPage = () => {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {addresses.map(addr => (
-                            <div key={addr.id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 relative group">
+                            <div key={addr.id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 relative group dark:bg-gray-800 dark:border-gray-700">
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-start space-x-3">
-                                        <div className="bg-green-50 p-2 rounded-full hidden sm:block">
-                                            <MapPin className="w-5 h-5 text-green-600" />
+                                        <div className="bg-green-50 p-2 rounded-full hidden sm:block dark:bg-green-900/20">
+                                            <MapPin className="w-5 h-5 text-green-600 dark:text-green-400" />
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <h3 className="font-bold text-gray-900">{addr.name}</h3>
-                                                <span className="bg-gray-100 text-gray-600 text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide font-medium">Home</span>
+                                                <h3 className="font-bold text-gray-900 dark:text-white">{addr.name}</h3>
+                                                <span className="bg-gray-100 text-gray-600 text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide font-medium dark:bg-gray-700 dark:text-gray-300">Home</span>
                                             </div>
-                                            <p className="text-sm text-gray-500 font-medium mt-0.5">{addr.phone}</p>
+                                            <p className="text-sm text-gray-500 font-medium mt-0.5 dark:text-gray-400">{addr.phone}</p>
 
-                                            <div className="mt-3 text-sm text-gray-600 leading-relaxed">
+                                            <div className="mt-3 text-sm text-gray-600 leading-relaxed dark:text-gray-300">
                                                 <p>{addr.houseNo}, {addr.roadName}</p>
                                                 <p>{addr.city}, {addr.state} - {addr.pinCode}</p>
                                             </div>

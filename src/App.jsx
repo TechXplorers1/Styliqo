@@ -13,6 +13,7 @@ import AddProductPage from './pages/AddProductPage';
 import ProfilePage from './pages/ProfilePage';
 import OrdersPage from './pages/OrdersPage'; // NEW IMPORT
 import AddressesPage from './pages/AddressesPage';
+import SettingsPage from './pages/SettingsPage';
 import CleanupPage from './pages/CleanupPage';
 import AuthGuard from './components/auth/AuthGuard';
 import AdminGuard from './components/auth/AdminGuard';
@@ -65,6 +66,14 @@ const App = () => { // Changed from function App()
               element={
                 <AuthGuard>
                   <AddressesPage />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <AuthGuard>
+                  <SettingsPage />
                 </AuthGuard>
               }
             />

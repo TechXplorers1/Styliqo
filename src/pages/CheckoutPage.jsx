@@ -195,17 +195,17 @@ const CheckoutPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-pink-50/30 to-purple-50/30 pb-24 md:pb-12">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-pink-50/30 to-purple-50/30 pb-24 md:pb-12 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900">
             {/* Header */}
-            <div className="bg-white shadow-sm border-b border-gray-100">
+            <div className="bg-white shadow-sm border-b border-gray-100 dark:bg-gray-800 dark:border-gray-700">
                 <div className="container mx-auto px-4 py-6 max-w-6xl">
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-500 rounded-xl flex items-center justify-center">
                             <Lock className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Secure Checkout</h1>
-                            <p className="text-sm text-gray-500">Complete your purchase safely</p>
+                            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Secure Checkout</h1>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Complete your purchase safely</p>
                         </div>
                     </div>
                 </div>
@@ -220,8 +220,8 @@ const CheckoutPage = () => {
                         {/* Step 1: Address Selection */}
                         {step === 1 && (
                             <div className="space-y-4">
-                                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 dark:bg-gray-800 dark:border-gray-700">
+                                    <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center dark:text-white">
                                         <div className="w-1 h-6 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full mr-3"></div>
                                         Delivery Address
                                     </h2>
@@ -238,7 +238,7 @@ const CheckoutPage = () => {
                                                     {addresses.map(addr => (
                                                         <label
                                                             key={addr.id}
-                                                            className={`block border-2 rounded-xl p-4 cursor-pointer transition-all ${selectedAddressId === addr.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-pink-200'}`}
+                                                            className={`block border-2 rounded-xl p-4 cursor-pointer transition-all ${selectedAddressId === addr.id ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20' : 'border-gray-200 hover:border-pink-200 dark:border-gray-700 dark:hover:border-pink-500'}`}
                                                         >
                                                             <div className="flex items-start gap-3">
                                                                 <input
@@ -251,10 +251,10 @@ const CheckoutPage = () => {
                                                                 <div className="flex-1">
                                                                     <div className="flex items-center gap-2 mb-2">
                                                                         <MapPin className="w-4 h-4 text-pink-600" />
-                                                                        <span className="font-bold text-gray-900">{addr.name}</span>
-                                                                        <span className="text-sm text-gray-500">• {addr.phone}</span>
+                                                                        <span className="font-bold text-gray-900 dark:text-white">{addr.name}</span>
+                                                                        <span className="text-sm text-gray-500 dark:text-gray-400">• {addr.phone}</span>
                                                                     </div>
-                                                                    <p className="text-sm text-gray-600 leading-relaxed">
+                                                                    <p className="text-sm text-gray-600 leading-relaxed dark:text-gray-300">
                                                                         {addr.houseNo}, {addr.roadName}, {addr.city}, {addr.state} - {addr.pinCode}
                                                                     </p>
                                                                 </div>
@@ -268,7 +268,7 @@ const CheckoutPage = () => {
                                             {!showAddAddressForm && (
                                                 <button
                                                     onClick={() => setShowAddAddressForm(true)}
-                                                    className="w-full border-2 border-dashed border-gray-300 rounded-xl p-4 text-pink-600 font-bold hover:border-pink-500 hover:bg-pink-50 transition-all flex items-center justify-center gap-2"
+                                                    className="w-full border-2 border-dashed border-gray-300 rounded-xl p-4 text-pink-600 font-bold hover:border-pink-500 hover:bg-pink-50 transition-all flex items-center justify-center gap-2 dark:border-gray-600 dark:hover:bg-pink-900/10"
                                                 >
                                                     <Plus className="w-5 h-5" />
                                                     Add New Address
@@ -277,8 +277,8 @@ const CheckoutPage = () => {
 
                                             {/* Add Address Form */}
                                             {showAddAddressForm && (
-                                                <form onSubmit={handleAddressSubmit} className="space-y-4 bg-gray-50 rounded-xl p-6 border border-gray-200">
-                                                    <h3 className="font-bold text-gray-900 mb-4">New Delivery Address</h3>
+                                                <form onSubmit={handleAddressSubmit} className="space-y-4 bg-gray-50 rounded-xl p-6 border border-gray-200 dark:bg-gray-700 dark:border-gray-600">
+                                                    <h3 className="font-bold text-gray-900 mb-4 dark:text-white">New Delivery Address</h3>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                         <Input label="Full Name" name="name" placeholder="John Doe" value={formData.name} onChange={handleInputChange} required />
                                                         <Input label="Phone Number" name="phone" placeholder="9876543210" value={formData.phone} onChange={handleInputChange} required />
@@ -293,7 +293,7 @@ const CheckoutPage = () => {
 
                                                     <div className="flex gap-3 pt-4">
                                                         {addresses.length > 0 && (
-                                                            <Button type="button" onClick={() => setShowAddAddressForm(false)} variant="outline" className="flex-1 h-12">Cancel</Button>
+                                                            <Button type="button" onClick={() => setShowAddAddressForm(false)} variant="outline" className="flex-1 h-12 dark:border-gray-500 dark:text-gray-300 dark:hover:bg-gray-600">Cancel</Button>
                                                         )}
                                                         <Button type="submit" variant="primary" className="flex-1 h-12 shadow-lg">Save Address</Button>
                                                     </div>
@@ -318,15 +318,15 @@ const CheckoutPage = () => {
                         {/* Step 2: Payment Method */}
                         {step === 2 && (
                             <div className="space-y-4">
-                                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 dark:bg-gray-800 dark:border-gray-700">
+                                    <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center dark:text-white">
                                         <div className="w-1 h-6 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full mr-3"></div>
                                         Payment Method
                                     </h2>
 
                                     <div className="space-y-3">
                                         {/* Cash on Delivery */}
-                                        <label className={`border-2 rounded-xl p-5 flex items-center cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-pink-200'}`}>
+                                        <label className={`border-2 rounded-xl p-5 flex items-center cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20' : 'border-gray-200 hover:border-pink-200 dark:border-gray-700 dark:hover:border-pink-500'}`}>
                                             <input
                                                 type="radio"
                                                 name="payment"
@@ -338,14 +338,14 @@ const CheckoutPage = () => {
                                             <div className="ml-4 flex-1">
                                                 <div className="flex items-center gap-2">
                                                     <Package className="w-5 h-5 text-pink-600" />
-                                                    <span className="font-bold text-gray-900">Cash on Delivery</span>
+                                                    <span className="font-bold text-gray-900 dark:text-white">Cash on Delivery</span>
                                                 </div>
-                                                <p className="text-sm text-gray-500 mt-1">Pay when you receive the order</p>
+                                                <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">Pay when you receive the order</p>
                                             </div>
                                         </label>
 
                                         {/* Online Payment (Disabled) */}
-                                        <label className="border-2 border-gray-200 rounded-xl p-5 flex items-center opacity-50 cursor-not-allowed">
+                                        <label className="border-2 border-gray-200 rounded-xl p-5 flex items-center opacity-50 cursor-not-allowed dark:border-gray-700">
                                             <input
                                                 type="radio"
                                                 name="payment"
@@ -355,8 +355,8 @@ const CheckoutPage = () => {
                                             <div className="ml-4 flex-1">
                                                 <div className="flex items-center gap-2">
                                                     <CreditCard className="w-5 h-5 text-gray-400" />
-                                                    <span className="font-bold text-gray-700">Online Payment</span>
-                                                    <span className="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full">Coming Soon</span>
+                                                    <span className="font-bold text-gray-700 dark:text-gray-300">Online Payment</span>
+                                                    <span className="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full dark:bg-gray-700 dark:text-gray-400">Coming Soon</span>
                                                 </div>
                                                 <p className="text-sm text-gray-400 mt-1">UPI, Cards, Net Banking</p>
                                             </div>
@@ -387,17 +387,17 @@ const CheckoutPage = () => {
 
                         {/* Step 3: Success */}
                         {step === 3 && (
-                            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-12 text-center">
+                            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-12 text-center dark:bg-gray-800 dark:border-gray-700">
                                 <div className="w-24 h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                                     <CheckCircle className="w-14 h-14 text-white" />
                                 </div>
-                                <h2 className="text-3xl font-bold text-gray-900 mb-3">Order Placed Successfully!</h2>
-                                <p className="text-gray-600 mb-8 max-w-md mx-auto">Thank you for your purchase. Your order will be delivered soon. We've sent a confirmation email to {user?.email}</p>
+                                <h2 className="text-3xl font-bold text-gray-900 mb-3 dark:text-white">Order Placed Successfully!</h2>
+                                <p className="text-gray-600 mb-8 max-w-md mx-auto dark:text-gray-300">Thank you for your purchase. Your order will be delivered soon. We've sent a confirmation email to {user?.email}</p>
                                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                                     <Button onClick={() => navigate('/orders')} variant="primary" className="h-12 px-8 shadow-lg">
                                         View Orders
                                     </Button>
-                                    <Button onClick={() => navigate('/')} variant="outline" className="h-12 px-8">
+                                    <Button onClick={() => navigate('/')} variant="outline" className="h-12 px-8 dark:border-gray-500 dark:text-gray-300 dark:hover:bg-gray-700">
                                         Continue Shopping
                                     </Button>
                                 </div>
@@ -407,8 +407,8 @@ const CheckoutPage = () => {
 
                     {/* Order Summary Sidebar */}
                     <div className="lg:w-96 flex-shrink-0">
-                        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-24">
-                            <h2 className="font-bold text-gray-900 text-lg mb-5 flex items-center">
+                        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-24 dark:bg-gray-800 dark:border-gray-700">
+                            <h2 className="font-bold text-gray-900 text-lg mb-5 flex items-center dark:text-white">
                                 <div className="w-1 h-6 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full mr-3"></div>
                                 Order Summary
                             </h2>
@@ -417,35 +417,35 @@ const CheckoutPage = () => {
                             <div className="space-y-3 mb-6 max-h-60 overflow-y-auto pr-2">
                                 {cartItems.map(item => (
                                     <div key={item.id} className="flex gap-3">
-                                        <div className="w-16 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                        <div className="w-16 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 dark:bg-gray-700">
                                             <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-gray-900 line-clamp-2">{item.title}</p>
-                                            <p className="text-xs text-gray-500 mt-1">Size: {item.selectedSize || 'Free'} • Qty: {item.quantity}</p>
+                                            <p className="text-sm font-medium text-gray-900 line-clamp-2 dark:text-white">{item.title}</p>
+                                            <p className="text-xs text-gray-500 mt-1 dark:text-gray-400">Size: {item.selectedSize || 'Free'} • Qty: {item.quantity}</p>
                                         </div>
-                                        <div className="font-bold text-sm text-gray-900">₹{item.price * item.quantity}</div>
+                                        <div className="font-bold text-sm text-gray-900 dark:text-white">₹{item.price * item.quantity}</div>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Price Breakdown */}
-                            <div className="space-y-3 text-sm border-t border-gray-200 pt-4">
-                                <div className="flex justify-between text-gray-600">
+                            <div className="space-y-3 text-sm border-t border-gray-200 pt-4 dark:border-gray-700">
+                                <div className="flex justify-between text-gray-600 dark:text-gray-300">
                                     <span>Subtotal ({cartItems.length} items)</span>
                                     <span className="font-medium">₹{totalAmount}</span>
                                 </div>
-                                <div className="flex justify-between text-green-600 bg-green-50 p-3 rounded-xl">
+                                <div className="flex justify-between text-green-600 bg-green-50 p-3 rounded-xl dark:bg-green-900/30 dark:text-green-400">
                                     <span className="font-medium">Discount</span>
                                     <span className="font-bold">-₹{Math.floor(totalAmount * 0.1)}</span>
                                 </div>
-                                <div className="flex justify-between text-gray-600">
+                                <div className="flex justify-between text-gray-600 dark:text-gray-300">
                                     <span>Delivery</span>
-                                    <span className="font-bold text-green-600">FREE</span>
+                                    <span className="font-bold text-green-600 dark:text-green-400">FREE</span>
                                 </div>
-                                <div className="border-t-2 border-dashed border-gray-200 my-3"></div>
-                                <div className="flex justify-between items-center bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-xl">
-                                    <span className="font-bold text-gray-900 text-base">Total</span>
+                                <div className="border-t-2 border-dashed border-gray-200 my-3 dark:border-gray-700"></div>
+                                <div className="flex justify-between items-center bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-xl dark:from-gray-700 dark:to-gray-700">
+                                    <span className="font-bold text-gray-900 text-base dark:text-white">Total</span>
                                     <span className="font-bold text-2xl text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600">
                                         ₹{totalAmount}
                                     </span>
@@ -455,18 +455,18 @@ const CheckoutPage = () => {
 
                         {/* Trust Badges */}
                         <div className="mt-4 space-y-3">
-                            <div className="bg-blue-50 rounded-xl p-4 flex items-center gap-3 border border-blue-100">
-                                <ShieldCheck className="w-6 h-6 text-blue-600 flex-shrink-0" />
+                            <div className="bg-blue-50 rounded-xl p-4 flex items-center gap-3 border border-blue-100 dark:bg-blue-900/20 dark:border-blue-800">
+                                <ShieldCheck className="w-6 h-6 text-blue-600 flex-shrink-0 dark:text-blue-400" />
                                 <div>
-                                    <h4 className="font-bold text-blue-900 text-sm">Safe & Secure</h4>
-                                    <p className="text-xs text-blue-600">100% secure payment</p>
+                                    <h4 className="font-bold text-blue-900 text-sm dark:text-blue-300">Safe & Secure</h4>
+                                    <p className="text-xs text-blue-600 dark:text-blue-400">100% secure payment</p>
                                 </div>
                             </div>
-                            <div className="bg-green-50 rounded-xl p-4 flex items-center gap-3 border border-green-100">
-                                <Truck className="w-6 h-6 text-green-600 flex-shrink-0" />
+                            <div className="bg-green-50 rounded-xl p-4 flex items-center gap-3 border border-green-100 dark:bg-green-900/20 dark:border-green-800">
+                                <Truck className="w-6 h-6 text-green-600 flex-shrink-0 dark:text-green-400" />
                                 <div>
-                                    <h4 className="font-bold text-green-900 text-sm">Free Delivery</h4>
-                                    <p className="text-xs text-green-600">On all orders</p>
+                                    <h4 className="font-bold text-green-900 text-sm dark:text-green-300">Free Delivery</h4>
+                                    <p className="text-xs text-green-600 dark:text-green-400">On all orders</p>
                                 </div>
                             </div>
                         </div>

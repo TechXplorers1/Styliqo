@@ -73,21 +73,21 @@ const OrdersPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="min-h-screen bg-gray-50 py-8 dark:bg-gray-900">
             <div className="container mx-auto px-4 max-w-4xl">
                 {/* Header */}
                 <div className="flex items-center mb-6">
-                    <Link to="/profile" className="mr-4 p-2 hover:bg-white rounded-full transition-colors">
-                        <ChevronLeft className="w-6 h-6 text-gray-600" />
+                    <Link to="/profile" className="mr-4 p-2 hover:bg-white rounded-full transition-colors dark:hover:bg-gray-800">
+                        <ChevronLeft className="w-6 h-6 text-gray-600 dark:text-gray-300" />
                     </Link>
-                    <h1 className="text-2xl font-bold text-gray-800">My Orders</h1>
+                    <h1 className="text-2xl font-bold text-gray-800 dark:text-white">My Orders</h1>
                 </div>
 
                 {orders.length === 0 ? (
-                    <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-                        <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <h2 className="text-xl font-bold text-gray-800 mb-2">No orders yet</h2>
-                        <p className="text-gray-500 mb-6">Start shopping to see your orders here!</p>
+                    <div className="bg-white rounded-lg shadow-sm p-12 text-center dark:bg-gray-800">
+                        <Package className="w-16 h-16 text-gray-300 mx-auto mb-4 dark:text-gray-600" />
+                        <h2 className="text-xl font-bold text-gray-800 mb-2 dark:text-white">No orders yet</h2>
+                        <p className="text-gray-500 mb-6 dark:text-gray-400">Start shopping to see your orders here!</p>
                         <Link to="/" className="inline-block bg-primary text-white font-bold py-3 px-8 rounded-lg hover:bg-primary/90 transition-colors">
                             Start Shopping
                         </Link>
@@ -99,23 +99,23 @@ const OrdersPage = () => {
                             const isDeclined = order.status === 'Declined';
 
                             return (
-                                <div key={order.id} className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+                                <div key={order.id} className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
                                     {/* Order Header */}
-                                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4">
+                                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4 dark:bg-gray-700/50 dark:border-gray-700">
                                         <div>
-                                            <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Order ID</p>
-                                            <p className="font-mono font-medium text-gray-800">#{order.id.slice(0, 8)}</p>
+                                            <p className="text-xs text-gray-500 uppercase font-bold tracking-wide dark:text-gray-400">Order ID</p>
+                                            <p className="font-mono font-medium text-gray-800 dark:text-gray-200">#{order.id.slice(0, 8)}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Date</p>
-                                            <p className="text-sm text-gray-800">{formatDate(order.createdAt)}</p>
+                                            <p className="text-xs text-gray-500 uppercase font-bold tracking-wide dark:text-gray-400">Date</p>
+                                            <p className="text-sm text-gray-800 dark:text-gray-200">{formatDate(order.createdAt)}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Total Amount</p>
+                                            <p className="text-xs text-gray-500 uppercase font-bold tracking-wide dark:text-gray-400">Total Amount</p>
                                             <p className="font-bold text-primary">₹{order.totalAmount}</p>
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Status</p>
+                                            <p className="text-xs text-gray-500 uppercase font-bold tracking-wide dark:text-gray-400">Status</p>
                                             <span className={`inline-block px-2 py-1 text-xs font-bold rounded ${getStatusColor(order.status)}`}>
                                                 {formatStatus(order.status)}
                                             </span>
@@ -124,7 +124,7 @@ const OrdersPage = () => {
 
                                     {/* Tracking Stepper - Hide if declined */}
                                     {!isDeclined && (
-                                        <div className="px-6 py-6 border-b border-gray-100 hidden md:block">
+                                        <div className="px-6 py-6 border-b border-gray-100 hidden md:block dark:border-gray-700">
                                             <div className="relative">
                                                 {/* Progress Bar Background */}
                                                 <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
@@ -144,7 +144,7 @@ const OrdersPage = () => {
                                                             <div key={step} className="flex flex-col items-center">
                                                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${isCompleted
                                                                     ? 'bg-green-500 border-green-500 text-white'
-                                                                    : 'bg-white border-gray-300 text-gray-300'
+                                                                    : 'bg-white border-gray-300 text-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-500'
                                                                     }`}>
                                                                     {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Clock className="w-4 h-4" />}
                                                                 </div>
@@ -161,17 +161,17 @@ const OrdersPage = () => {
 
                                     {/* Order Items */}
                                     <div className="p-6">
-                                        <h3 className="font-bold text-gray-800 mb-4 text-sm">Items in this order</h3>
+                                        <h3 className="font-bold text-gray-800 mb-4 text-sm dark:text-white">Items in this order</h3>
                                         <div className="space-y-4">
                                             {order.items.map((item, index) => (
                                                 <div key={index} className="flex items-start gap-4">
-                                                    <div className="w-20 h-24 rounded-md overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
+                                                    <div className="w-20 h-24 rounded-md overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200 dark:border-gray-600 dark:bg-gray-700">
                                                         <LazyImage src={item.image} alt={item.title} className="w-full h-full object-cover" />
                                                     </div>
                                                     <div className="flex-1">
-                                                        <h4 className="font-medium text-gray-800 text-sm md:text-base line-clamp-2">{item.title}</h4>
-                                                        <p className="text-gray-500 text-xs mt-1">Size: {item.selectedSize || 'N/A'} | Qty: {item.quantity}</p>
-                                                        <p className="font-bold text-gray-900 mt-2">₹{item.price}</p>
+                                                        <h4 className="font-medium text-gray-800 text-sm md:text-base line-clamp-2 dark:text-gray-200">{item.title}</h4>
+                                                        <p className="text-gray-500 text-xs mt-1 dark:text-gray-400">Size: {item.selectedSize || 'N/A'} | Qty: {item.quantity}</p>
+                                                        <p className="font-bold text-gray-900 mt-2 dark:text-white">₹{item.price}</p>
                                                     </div>
                                                 </div>
                                             ))}

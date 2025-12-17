@@ -105,7 +105,11 @@ const AddProductPage = () => {
             }
         } catch (error) {
             console.error("Error saving product:", error);
-            alert("Failed to save product: " + error.message);
+            if (error.code === 'storage/unauthorized' || error.message.includes('Network Error') || error.message.includes('CORS')) {
+                alert("Image upload failed due to permission or network issues.\n\nThis is commonly caused by CORS policy blocks on 'localhost'.\n\nPlease check the instructions in your terminal to fix this, or use an image URL instead.");
+            } else {
+                alert("Failed to save product: " + error.message);
+            }
         } finally {
             setLoading(false);
         }
