@@ -29,14 +29,11 @@ const CheckoutPage = () => {
         state: '',
     });
     const [paymentMethod, setPaymentMethod] = useState('cod');
+    const [onlineMethod, setOnlineMethod] = useState('upi'); // upi, card, net banking
+    const [upiId, setUpiId] = useState('');
+    const [verificationStatus, setVerificationStatus] = useState('idle'); // idle, verifying, verified, error
     const [isProcessing, setIsProcessing] = useState(false);
     const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
-
-    useEffect(() => {
-        if (cartItems.length === 0 && step !== 3) {
-            navigate('/cart');
-        }
-    }, [cartItems, navigate, step]);
 
     // Fetch addresses on mount/user change
     useEffect(() => {
@@ -95,6 +92,18 @@ const CheckoutPage = () => {
             return;
         }
         setStep(2);
+    };
+
+    const handleVerifyUpi = () => {
+        if (!upiId.includes('@')) {
+            setVerificationStatus('error');
+            return;
+        }
+        setVerificationStatus('verifying');
+        // Mock API call
+        setTimeout(() => {
+            setVerificationStatus('verified');
+        }, 1500);
     };
 
     const handlePayment = async () => {
@@ -344,21 +353,132 @@ const CheckoutPage = () => {
                                             </div>
                                         </label>
 
-                                        {/* Online Payment (Disabled) */}
-                                        <label className="border-2 border-gray-200 rounded-xl p-5 flex items-center opacity-50 cursor-not-allowed dark:border-gray-700">
+                                        <label className={`border-2 rounded-xl p-5 flex items-start cursor-pointer transition-all ${paymentMethod === 'online' ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20' : 'border-gray-200 hover:border-pink-200 dark:border-gray-700 dark:hover:border-pink-500'}`}>
                                             <input
                                                 type="radio"
                                                 name="payment"
-                                                className="w-5 h-5"
-                                                disabled
+                                                value="online"
+                                                className="w-5 h-5 text-pink-600 focus:ring-pink-500 mt-0.5"
+                                                checked={paymentMethod === 'online'}
+                                                onChange={() => setPaymentMethod('online')}
                                             />
                                             <div className="ml-4 flex-1">
                                                 <div className="flex items-center gap-2">
-                                                    <CreditCard className="w-5 h-5 text-gray-400" />
-                                                    <span className="font-bold text-gray-700 dark:text-gray-300">Online Payment</span>
-                                                    <span className="bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full dark:bg-gray-700 dark:text-gray-400">Coming Soon</span>
+                                                    <CreditCard className="w-5 h-5 text-pink-600" />
+                                                    <span className="font-bold text-gray-900 dark:text-white">Online Payment</span>
                                                 </div>
-                                                <p className="text-sm text-gray-400 mt-1">UPI, Cards, Net Banking</p>
+                                                <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">Pay securely via UPI, Cards, or Net Banking</p>
+
+                                                {/* Online Payment Sub-Options */}
+                                                {paymentMethod === 'online' && (
+                                                    <div className="mt-4 space-y-4 animate-fadeIn">
+                                                        {/* Tabs for Method Selection */}
+                                                        <div className="flex gap-2 p-1 bg-white rounded-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-600">
+                                                            {['UPI', 'Card', 'Net Banking'].map((method) => (
+                                                                <button
+                                                                    key={method}
+                                                                    onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        setOnlineMethod(method.toLowerCase());
+                                                                    }}
+                                                                    className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${onlineMethod === method.toLowerCase()
+                                                                        ? 'bg-pink-100 text-pink-700 shadow-sm dark:bg-pink-900/40 dark:text-pink-300'
+                                                                        : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'
+                                                                        }`}
+                                                                >
+                                                                    {method}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+
+                                                        {/* UPI Section */}
+                                                        {onlineMethod === 'upi' && (
+                                                            <div className="space-y-3 pt-2">
+                                                                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Select UPI App</p>
+                                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                                                    {['GPay', 'PhonePe', 'Paytm', 'BHIM'].map((app) => (
+                                                                        <div key={app} className="border border-gray-200 rounded-lg p-3 text-center cursor-pointer hover:border-pink-500 hover:bg-pink-50 transition-all dark:border-gray-700 dark:hover:border-pink-500 dark:text-gray-300 dark:hover:bg-pink-900/20">
+                                                                            <span className="text-sm font-bold">{app}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                                <div className="relative">
+                                                                    <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center">
+                                                                        <div className="w-full border-t border-gray-200 dark:border-gray-600"></div>
+                                                                    </div>
+                                                                    <div className="relative flex justify-center text-xs">
+                                                                        <span className="bg-pink-50 px-2 text-gray-500 dark:bg-gray-800 dark:text-gray-400">Or pay via UPI ID</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex gap-2">
+                                                                    <Input
+                                                                        placeholder="e.g. mobile@upi"
+                                                                        className="bg-white dark:bg-gray-800 flex-1"
+                                                                        value={upiId}
+                                                                        onChange={(e) => {
+                                                                            setUpiId(e.target.value);
+                                                                            setVerificationStatus('idle');
+                                                                        }}
+                                                                    />
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        className="h-10 px-4 whitespace-nowrap"
+                                                                        onClick={handleVerifyUpi}
+                                                                        disabled={verificationStatus === 'verifying' || !upiId}
+                                                                    >
+                                                                        {verificationStatus === 'verifying' ? 'Checking...' : 'Verify'}
+                                                                    </Button>
+                                                                </div>
+
+                                                                {/* Verification Status Feedback */}
+                                                                {verificationStatus === 'verified' && (
+                                                                    <div className="flex items-center gap-2 text-green-600 bg-green-50 p-2 rounded-lg text-sm dark:bg-green-900/20 dark:text-green-400 animate-fadeIn">
+                                                                        <CheckCircle className="w-4 h-4" />
+                                                                        <span>Verified Name: <strong>{user?.displayName || 'Styliqo User'}</strong></span>
+                                                                    </div>
+                                                                )}
+                                                                {verificationStatus === 'error' && (
+                                                                    <p className="text-red-500 text-sm flex items-center gap-1 animate-fadeIn">
+                                                                        <span className="w-1 h-1 rounded-full bg-red-500"></span>
+                                                                        Invalid UPI ID format
+                                                                    </p>
+                                                                )}
+
+                                                                {verificationStatus === 'verified' && (
+                                                                    <Button onClick={handlePayment} variant="primary" className="w-full text-sm py-2 mt-2 shadow-md">
+                                                                        Pay Now
+                                                                    </Button>
+                                                                )}
+                                                            </div>
+                                                        )}
+
+                                                        {/* Card Section */}
+                                                        {onlineMethod === 'card' && (
+                                                            <div className="space-y-3 pt-2">
+                                                                <Input label="Card Number" placeholder="0000 0000 0000 0000" icon={<CreditCard className="w-4 h-4" />} />
+                                                                <div className="grid grid-cols-2 gap-3">
+                                                                    <Input label="Expiry Date" placeholder="MM/YY" />
+                                                                    <Input label="CVV" placeholder="123" type="password" />
+                                                                </div>
+                                                                <Input label="Card Holder Name" placeholder="John Doe" />
+                                                            </div>
+                                                        )}
+
+                                                        {/* Net Banking Section */}
+                                                        {onlineMethod === 'net banking' && (
+                                                            <div className="space-y-3 pt-2">
+                                                                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Popular Banks</p>
+                                                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                                                    {['HDFC', 'SBI', 'ICICI', 'Axis', 'Kotak', 'Others'].map((bank) => (
+                                                                        <div key={bank} className="border border-gray-200 rounded-lg p-3 text-center cursor-pointer hover:border-pink-500 hover:bg-pink-50 transition-all dark:border-gray-700 dark:hover:border-pink-500 dark:text-gray-300 dark:hover:bg-pink-900/20">
+                                                                            <span className="text-sm font-bold">{bank}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                         </label>
                                     </div>
